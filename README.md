@@ -49,7 +49,7 @@ qunitjs=1
 requirejs=1
 ```
 
-and what nodejs version dou you want to install:
+and what nodejs version do you want to install:
 
 ```ini
 [nodejs]
