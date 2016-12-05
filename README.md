@@ -14,8 +14,7 @@ Files in rpm/deb package epages-nodejs come from three GIT repositories:
 
 Files in this repository (node-binaries) can be updated by executing:
 
-Install Build Tools on CentOS only VM
--------------------------------------
+### Install Build Tools on CentOS-Only VM
 
 ```
 cd
@@ -26,8 +25,15 @@ git clone git@github.com:ePages-de/epages6-packages
 ~/epages6-packages/scripts/PrepareBuildHost.sh -y
 ```
 
-Update ~/node-binaries/control/build.conf
------------------------------------------
+### Install This Repository (node-binaries)
+
+```
+cd
+rm -rf ~/node-binaries
+git clone git@github.com:ePages-de/node-binaries
+```
+
+### Update ~/node-binaries/control/build.conf
 
 Check what modules shall be added to nodejs:
 
@@ -58,8 +64,7 @@ version=v0.10.40
 **Note that you only can use nodejs binaries up to glibc 2.9 because we
 still support CentOS 6.**
 
-Build new NodeJS Binaries
--------------------------
+### Build new NodeJS Binaries
 
 Choose a directory where to put the new nodejs binaries, say
 `/tmp/node/`. Then execute:
