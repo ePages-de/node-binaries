@@ -127,9 +127,8 @@ fi
 # download and unpack nodejs package
 #=============================================================================
 
-ECHO $LINENO "curl -sLk $download_dir/$pkg > $pkg"
-curl -sLk -D $pkg.log $download_dir$pkg > $pkg || EXIT "download failed"
-head -1 $pkg.log | grep -P '^HTTP/[0-9.]+ [45]' && EXIT "download failed"
+ECHO $LINENO "wget $download_dir/$pkg"
+wget $download_dir$pkg || EXIT "download failed"
 
 ECHO $LINENO "tar zxf $pkg"
 rm -rf ${pkg%.tar.gz}
