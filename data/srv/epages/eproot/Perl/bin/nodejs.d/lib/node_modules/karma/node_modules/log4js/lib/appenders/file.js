@@ -1,6 +1,5 @@
 "use strict";
 var layouts = require('../layouts')
-, async = require('async')
 , path = require('path')
 , fs = require('fs')
 , streams = require('../streams')
@@ -20,11 +19,11 @@ process.on('exit', function() {
  * File Appender writing the logs to a text file. Supports rolling of logs by size.
  *
  * @param file file log messages will be written to
- * @param layout a function that takes a logevent and returns a string 
+ * @param layout a function that takes a logevent and returns a string
  *   (defaults to basicLayout).
- * @param logSize - the maximum size (in bytes) for a log file, 
+ * @param logSize - the maximum size (in bytes) for a log file,
  *   if not provided then logs won't be rotated.
- * @param numBackups - the number of log files to keep after logSize 
+ * @param numBackups - the number of log files to keep after logSize
  *   has been reached (default 5)
  * @param compress - flag that controls log file compression
  * @param timezoneOffset - optional timezone offset in minutes (default system local)
@@ -48,9 +47,9 @@ function fileAppender (file, layout, logSize, numBackups, compress, timezoneOffs
       );
     } else {
       stream = fs.createWriteStream(
-        file, 
-        { encoding: "utf8", 
-          mode: parseInt('0644', 8), 
+        file,
+        { encoding: "utf8",
+          mode: parseInt('0644', 8),
           flags: 'a' }
       );
     }
@@ -61,7 +60,7 @@ function fileAppender (file, layout, logSize, numBackups, compress, timezoneOffs
   }
 
   var logFile = openTheStream(file, logSize, numBackups);
-  
+
   // push file to the stack of open handlers
   openFiles.push(logFile);
 
@@ -81,20 +80,39 @@ function configure(config, options) {
     config.filename = path.join(options.cwd, config.filename);
   }
 
-  return fileAppender(config.filename, layout, config.maxLogSize, config.backups, config.compress, config.timezoneOffset);
+  return fileAppender(
+    config.filename,
+    layout,
+    config.maxLogSize,
+    config.backups,
+    config.compress,
+    config.timezoneOffset
+  );
 }
 
 function shutdown(cb) {
-  async.each(openFiles, function(file, done) {
+  var completed = 0;
+  var error;
+  var complete = function(err) {
+    error = error || err;
+    completed++;
+    if (completed >= openFiles.length) {
+      cb(error);
+    }
+  };
+  if (!openFiles.length) {
+    return cb();
+  }
+  openFiles.forEach(function(file) {
     if (!file.write(eol, "utf-8")) {
       file.once('drain', function() {
-        file.end(done);
+        file.end(complete);
       });
     } else {
-      file.end(done);
+      file.end(complete);
     }
-  }, cb);
-}  
+  });
+}
 
 exports.appender = fileAppender;
 exports.configure = configure;

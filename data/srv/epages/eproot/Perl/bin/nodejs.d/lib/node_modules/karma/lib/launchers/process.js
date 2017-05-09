@@ -2,10 +2,10 @@ var path = require('path')
 var log = require('../logger').create('launcher')
 var env = process.env
 
-var ProcessLauncher = function (spawn, tempDir, timer) {
+var ProcessLauncher = function (spawn, tempDir, timer, processKillTimeout) {
   var self = this
   var onExitCallback
-  var killTimeout = 2000
+  var killTimeout = processKillTimeout || 2000
 
   this._tempDir = tempDir.getPath('/karma-' + this.id.toString())
 
@@ -77,6 +77,10 @@ var ProcessLauncher = function (spawn, tempDir, timer) {
         errorOutput += err.toString()
       }
     })
+
+    self._process.stderr.on('data', function (errBuff) {
+      errorOutput += errBuff.toString()
+    })
   }
 
   this._onProcessExit = function (code, errorOutput) {
@@ -113,7 +117,7 @@ var ProcessLauncher = function (spawn, tempDir, timer) {
   }
 
   this._onKillTimeout = function () {
-    if (self.state !== self.STATE_BEING_KILLED) {
+    if (self.state !== self.STATE_BEING_KILLED && self.state !== self.STATE_BEING_FORCE_KILLED) {
       return
     }
 
@@ -134,8 +138,18 @@ var ProcessLauncher = function (spawn, tempDir, timer) {
 }
 
 ProcessLauncher.decoratorFactory = function (timer) {
-  return function (launcher) {
-    ProcessLauncher.call(launcher, require('child_process').spawn, require('../temp_dir'), timer)
+  return function (launcher, processKillTimeout) {
+    var spawn = require('child_process').spawn
+
+    var spawnWithoutOutput = function () {
+      var proc = spawn.apply(null, arguments)
+      proc.stdout.resume()
+      proc.stderr.resume()
+
+      return proc
+    }
+
+    ProcessLauncher.call(launcher, spawnWithoutOutput, require('../temp_dir'), timer, processKillTimeout)
   }
 }
 
