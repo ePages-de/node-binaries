@@ -60,8 +60,9 @@ version=v0.10.40
 #download_dir=http://nodejs.org/dist/latest-v0.10.x
 #version=latest
 ```
+**Note: If the version is latest than you can find the actual binary version in `data/srv/epages/eproot/Perl/bin/nodejs.d/CHANGELOG.md`**
 
-**Note that you only can use nodejs binaries up to glibc 2.9 because we
+**Note: that you only can use nodejs binaries up to glibc 2.9 because we
 still support CentOS 6.**
 
 ### Build new NodeJS Binaries
