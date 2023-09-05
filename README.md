@@ -17,6 +17,7 @@ Files in this repository (node-binaries) can be updated by executing:
 ### Install Build Tools on CentOS-Only VM
 
 ```
+sudo yum update
 cd
 yum -y install git
 rm -rf ~/epages6-packages
